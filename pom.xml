@@ -7,14 +7,14 @@
     <groupId>com.lishuo</groupId>
     <artifactId>S-RPC-Framework</artifactId>
     <packaging>pom</packaging>
+    <modules>
+        <module>rpc-common</module>
+        <module>rpc-api</module>
+        <module>rpc-core</module>
+        <module>test-server</module>
+        <module>test-client</module>
+    </modules>
     <version>1.0-SNAPSHOT</version>
-<!--    <modules>-->
-<!--        <module>rpc-common</module>-->
-<!--        <module>rpc-core</module>-->
-<!--        <module>rpc-api</module>-->
-<!--        <module>test-server</module>-->
-<!--        <module>test-client</module>-->
-<!--    </modules>-->
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
