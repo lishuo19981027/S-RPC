@@ -3,6 +3,7 @@ package com.lishuo.rpc.netty.server;
 import com.lishuo.rpc.RpcServer;
 import com.lishuo.rpc.codec.CommonDecoder;
 import com.lishuo.rpc.codec.CommonEncoder;
+import com.lishuo.rpc.serializer.CommonSerializer;
 import com.lishuo.rpc.serializer.HessianSerializer;
 import com.lishuo.rpc.serializer.JsonSerializer;
 import com.lishuo.rpc.serializer.KryoSerializer;
@@ -20,6 +21,10 @@ public class NettyServer implements RpcServer {
 
     private static final Logger logger =
             LoggerFactory.getLogger(NettyServer.class);
+
+    private CommonSerializer serializer;
+
+
     @Override
     public void start(int port) {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -37,9 +42,7 @@ public class NettyServer implements RpcServer {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-//                            pipeline.addLast(new CommonEncoder(new JsonSerializer()));
-//                            pipeline.addLast(new CommonEncoder(new KryoSerializer()));
-                            pipeline.addLast(new CommonEncoder(new HessianSerializer()));
+                            pipeline.addLast(new CommonEncoder(serializer));
                             pipeline.addLast(new CommonDecoder());
                             pipeline.addLast(new NettyServerHandle());
                         }
@@ -53,5 +56,10 @@ public class NettyServer implements RpcServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
+
+    @Override
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

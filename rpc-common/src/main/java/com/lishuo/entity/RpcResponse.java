@@ -9,8 +9,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class RpcResponse<T> implements Serializable {
 
-
-
     /*响应状态码*/
     private Integer statusCode;
 

@@ -17,7 +17,9 @@ public enum RpcError {
 
     UNKNOWN_SERIALIZER("不识别的(反)序列化器"),
 
-    UNKNOWN_PACKAGE_TYPE("不识别的数据包类型");
+    UNKNOWN_PACKAGE_TYPE("不识别的数据包类型"),
+
+    SERIALIZER_NOT_FOUND("找不到序列化器");
 
     private final String message;
 }

@@ -3,6 +3,7 @@ package com.lishuo.rpc.socket.server;
 import com.lishuo.rpc.RequestHandle;
 import com.lishuo.rpc.RpcServer;
 import com.lishuo.rpc.registry.ServiceRegistry;
+import com.lishuo.rpc.serializer.CommonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ public class SocketServer implements RpcServer {
     private final ExecutorService threadPool;
     private RequestHandle requestHandler = new RequestHandle();
     private final ServiceRegistry serviceRegistry;
+    private CommonSerializer serializer;
 
     public SocketServer(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
@@ -41,11 +43,17 @@ public class SocketServer implements RpcServer {
             Socket socket;
             while((socket = serverSocket.accept()) != null) {
                 logger.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());
-                threadPool.execute(new RequestHandleThread(socket, requestHandler, serviceRegistry));
+                threadPool.execute(new RequestHandleThread(socket, requestHandler, serviceRegistry
+                ,serializer));
             }
             threadPool.shutdown();
         } catch (IOException e) {
             logger.error("服务器启动时有错误发生:", e);
         }
+    }
+
+    @Override
+    public void setSerializer(CommonSerializer serializer) {
+        this.serializer=serializer;
     }
 }
