@@ -2,11 +2,14 @@ package com.lishuo.entity;
 
 import lombok.Data;
 import com.lishuo.enumeration.ResponseCode;
-
+import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Data
+@NoArgsConstructor
 public class RpcResponse<T> implements Serializable {
+
+
 
     /*响应状态码*/
     private Integer statusCode;

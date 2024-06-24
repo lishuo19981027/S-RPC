@@ -1,4 +1,4 @@
-package com.lishuo.registry;
+package com.lishuo.rpc.registry;
 
 /*服务注册表通用接口*/
 public interface ServiceRegistry {
