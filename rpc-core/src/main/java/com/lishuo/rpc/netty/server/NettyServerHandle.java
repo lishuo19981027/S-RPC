@@ -30,7 +30,7 @@ public class NettyServerHandle extends
             String interfaceName = rpcRequest.getInterfaceName();
             Object service = serviceRegistry.getService(interfaceName);
             Object result = requestHandler.handle(rpcRequest, service);
-            ChannelFuture future = ctx.writeAndFlush(RpcResponse.success(result));
+            ChannelFuture future = ctx.writeAndFlush(RpcResponse.success(result,rpcRequest.getRequestId()));
             future.addListener(ChannelFutureListener.CLOSE);
         } finally {
             ReferenceCountUtil.release(rpcRequest);

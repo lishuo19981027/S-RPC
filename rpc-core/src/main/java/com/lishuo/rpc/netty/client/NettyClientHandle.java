@@ -18,7 +18,8 @@ public class NettyClientHandle extends
             throws Exception {
         try {
             logger.info(String.format("客户端接收到消息: %s", rpcResponse));
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse"
+                    + rpcResponse.getRequestId());
             ctx.channel().attr(key).set(rpcResponse);
             ctx.channel().close();
         } finally {
