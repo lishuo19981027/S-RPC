@@ -6,6 +6,8 @@ import com.lishuo.enumeration.ResponseCode;
 import com.lishuo.enumeration.RpcError;
 import com.lishuo.exception.RpcException;
 import com.lishuo.rpc.provider.NacosServiceRegistry;
+import com.lishuo.rpc.registry.NacosServiceDiscovery;
+import com.lishuo.rpc.registry.ServiceDiscovery;
 import com.lishuo.rpc.registry.ServiceRegistry;
 import com.lishuo.rpc.transport.RpcClient;
 import com.lishuo.rpc.serializer.CommonSerializer;
@@ -24,12 +26,12 @@ public class SocketClient implements RpcClient {
     private static final Logger logger =
             LoggerFactory.getLogger(SocketClient.class);
 
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceDiscovery serviceDiscovery;
 
     private CommonSerializer serializer;
 
     public SocketClient() {
-        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceDiscovery = new NacosServiceDiscovery();
     }
 
     @Override
@@ -39,7 +41,7 @@ public class SocketClient implements RpcClient {
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
         InetSocketAddress inetSocketAddress =
-                serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+                serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
         try (Socket socket = new Socket()) {
             socket.connect(inetSocketAddress);
             OutputStream outputStream = socket.getOutputStream();

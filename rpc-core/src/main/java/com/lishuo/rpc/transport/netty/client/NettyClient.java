@@ -5,6 +5,8 @@ import com.lishuo.entity.RpcResponse;
 import com.lishuo.enumeration.RpcError;
 import com.lishuo.exception.RpcException;
 import com.lishuo.rpc.provider.NacosServiceRegistry;
+import com.lishuo.rpc.registry.NacosServiceDiscovery;
+import com.lishuo.rpc.registry.ServiceDiscovery;
 import com.lishuo.rpc.registry.ServiceRegistry;
 import com.lishuo.rpc.transport.RpcClient;
 import com.lishuo.rpc.serializer.CommonSerializer;
@@ -25,7 +27,7 @@ public class NettyClient implements RpcClient {
             LoggerFactory.getLogger(NettyClient.class);
 
     private static final Bootstrap bootstrap;
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceDiscovery serviceDiscovery;
 
     static {
         EventLoopGroup group = new NioEventLoopGroup();
@@ -38,7 +40,7 @@ public class NettyClient implements RpcClient {
     private CommonSerializer serializer;
 
     public NettyClient() {
-        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceDiscovery = new NacosServiceDiscovery();
     }
 
     @Override
@@ -50,7 +52,7 @@ public class NettyClient implements RpcClient {
         AtomicReference<Object> result = new AtomicReference<>(null);
         try {
             InetSocketAddress inetSocketAddress =
-                    serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+                    serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if(channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {
@@ -67,6 +69,7 @@ public class NettyClient implements RpcClient {
                 RpcMessageChecker.check(rpcRequest, rpcResponse);
                 result.set(rpcResponse.getData());
             }else {
+                channel.close();
                 System.exit(0);
             }
 
