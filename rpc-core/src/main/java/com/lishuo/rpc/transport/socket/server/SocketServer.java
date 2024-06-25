@@ -3,6 +3,7 @@ package com.lishuo.rpc.transport.socket.server;
 import com.lishuo.enumeration.RpcError;
 import com.lishuo.exception.RpcException;
 import com.lishuo.rpc.RequestHandle;
+import com.lishuo.rpc.hook.ShutdownHook;
 import com.lishuo.rpc.provider.NacosServiceRegistry;
 import com.lishuo.rpc.provider.ServiceProvider;
 import com.lishuo.rpc.provider.ServiceProviderImpl;
@@ -53,12 +54,14 @@ public class SocketServer implements RpcServer {
 
     @Override
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress(host, port));
             logger.info("服务器启动……");
+            ShutdownHook.getShutdownHook().addClearAllHook();
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
                 logger.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());
-                threadPool.execute(new RequestHandleThread(socket, requestHandler, serviceRegistry, serializer));
+                threadPool.execute(new SocketRequestHandleThread(socket, requestHandler,serializer));
             }
             threadPool.shutdown();
         } catch (IOException e) {

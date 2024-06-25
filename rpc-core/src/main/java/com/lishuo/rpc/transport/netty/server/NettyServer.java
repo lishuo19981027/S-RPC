@@ -2,6 +2,7 @@ package com.lishuo.rpc.transport.netty.server;
 
 import com.lishuo.enumeration.RpcError;
 import com.lishuo.exception.RpcException;
+import com.lishuo.rpc.hook.ShutdownHook;
 import com.lishuo.rpc.provider.NacosServiceRegistry;
 import com.lishuo.rpc.provider.ServiceProvider;
 import com.lishuo.rpc.provider.ServiceProviderImpl;
@@ -66,6 +67,7 @@ public class NettyServer implements RpcServer {
                         }
                     });
             ChannelFuture future = serverBootstrap.bind(host,port).sync();
+            ShutdownHook.getShutdownHook().addClearAllHook();
             future.channel().closeFuture().sync();
 
         } catch (InterruptedException e) {

@@ -1,8 +1,10 @@
 package com.lishuo.rpc.transport.netty.server;
 
+import com.alibaba.nacos.common.http.handler.RequestHandler;
 import com.lishuo.entity.RpcRequest;
 import com.lishuo.entity.RpcResponse;
 import com.lishuo.rpc.RequestHandle;
+import com.lishuo.rpc.factory.SingletonFactory;
 import com.lishuo.util.ThreadPoolFactory;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -17,13 +19,15 @@ import java.util.concurrent.ExecutorService;
 public class NettyServerHandle extends
         SimpleChannelInboundHandler<RpcRequest> {
     private static final Logger logger = LoggerFactory.getLogger(NettyServerHandle.class);
-    private static RequestHandle requestHandler;
+    private final RequestHandle requestHandler;
     private static final String THREAD_NAME_PREFIX = "netty-server-handler";
-    private static final ExecutorService threadPool;
+    private final ExecutorService threadPool;
 
-    static {
-        requestHandler = new RequestHandle();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
+    public NettyServerHandle() {
+            this.requestHandler =
+                    SingletonFactory.getInstance(RequestHandle.class);
+            this.threadPool =
+                    ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) throws Exception {

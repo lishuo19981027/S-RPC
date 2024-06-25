@@ -14,20 +14,17 @@ import java.io.*;
 import java.net.Socket;
 
 /*处理RpcRequest的工作线程*/
-public class RequestHandleThread implements Runnable{
-        private static final Logger logger = LoggerFactory.getLogger(RequestHandleThread.class);
+public class SocketRequestHandleThread implements Runnable{
+        private static final Logger logger = LoggerFactory.getLogger(SocketRequestHandleThread.class);
 
         private Socket socket;
         private RequestHandle requestHandle;
-        private ServiceRegistry serviceRegistry;
-
        private CommonSerializer serializer;
 
-    public RequestHandleThread(Socket socket, RequestHandle requestHandler,
-                               ServiceRegistry serviceRegistry,CommonSerializer serializer) {
+    public SocketRequestHandleThread(Socket socket, RequestHandle requestHandler,
+                                     CommonSerializer serializer) {
             this.socket = socket;
             this.requestHandle = requestHandler;
-            this.serviceRegistry = serviceRegistry;
             this.serializer = serializer;
         }
 
@@ -35,7 +32,8 @@ public class RequestHandleThread implements Runnable{
         public void run() {
             try (InputStream inputStream = socket.getInputStream();
                  OutputStream outputStream = socket.getOutputStream()) {
-                RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
+                RpcRequest rpcRequest =
+                        (RpcRequest) ObjectReader.readObject(inputStream);
                 Object result = requestHandle.handle(rpcRequest);
                 RpcResponse<Object> response = RpcResponse.success(result,
                         rpcRequest.getRequestId());
