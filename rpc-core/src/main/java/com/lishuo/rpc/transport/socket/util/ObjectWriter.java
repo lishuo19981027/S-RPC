@@ -1,4 +1,4 @@
-package com.lishuo.rpc.socket.util;
+package com.lishuo.rpc.transport.socket.util;
 
 import com.lishuo.entity.RpcRequest;
 import com.lishuo.enumeration.PackageType;

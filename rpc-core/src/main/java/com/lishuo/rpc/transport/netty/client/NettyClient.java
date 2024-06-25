@@ -1,20 +1,17 @@
-package com.lishuo.rpc.netty.client;
+package com.lishuo.rpc.transport.netty.client;
 
 import com.lishuo.entity.RpcRequest;
 import com.lishuo.entity.RpcResponse;
 import com.lishuo.enumeration.RpcError;
 import com.lishuo.exception.RpcException;
-import com.lishuo.rpc.RpcClient;
-import com.lishuo.rpc.codec.CommonDecoder;
-import com.lishuo.rpc.codec.CommonEncoder;
+import com.lishuo.rpc.provider.NacosServiceRegistry;
+import com.lishuo.rpc.registry.ServiceRegistry;
+import com.lishuo.rpc.transport.RpcClient;
 import com.lishuo.rpc.serializer.CommonSerializer;
-import com.lishuo.rpc.serializer.JsonSerializer;
-import com.lishuo.rpc.serializer.KryoSerializer;
 import com.lishuo.util.RpcMessageChecker;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
@@ -28,6 +25,7 @@ public class NettyClient implements RpcClient {
             LoggerFactory.getLogger(NettyClient.class);
 
     private static final Bootstrap bootstrap;
+    private final ServiceRegistry serviceRegistry;
 
     static {
         EventLoopGroup group = new NioEventLoopGroup();
@@ -37,14 +35,10 @@ public class NettyClient implements RpcClient {
                 .option(ChannelOption.SO_KEEPALIVE, true);
     }
 
-    private String host;
-    private int port;
     private CommonSerializer serializer;
 
-
-    public NettyClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public NettyClient() {
+        this.serviceRegistry = new NacosServiceRegistry();
     }
 
     @Override
@@ -55,8 +49,9 @@ public class NettyClient implements RpcClient {
         }
         AtomicReference<Object> result = new AtomicReference<>(null);
         try {
-            Channel channel =
-                    ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            InetSocketAddress inetSocketAddress =
+                    serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if(channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {
                     if(future1.isSuccess()) {

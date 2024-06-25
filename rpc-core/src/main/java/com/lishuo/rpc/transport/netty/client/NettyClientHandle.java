@@ -1,4 +1,4 @@
-package com.lishuo.rpc.netty.client;
+package com.lishuo.rpc.transport.netty.client;
 
 import com.lishuo.entity.RpcResponse;
 import io.netty.channel.ChannelHandlerContext;

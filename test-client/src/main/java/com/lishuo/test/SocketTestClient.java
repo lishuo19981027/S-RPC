@@ -3,14 +3,14 @@ package com.lishuo.test;
 
 import com.lishuo.HelloObject;
 import com.lishuo.HelloService;
-import com.lishuo.rpc.RpcClientProxy;
+import com.lishuo.rpc.transport.RpcClientProxy;
 import com.lishuo.rpc.serializer.KryoSerializer;
-import com.lishuo.rpc.socket.client.SocketClient;
+import com.lishuo.rpc.transport.socket.client.SocketClient;
 
 /*测试用消费者（客户端）*/
 public class SocketTestClient {
     public static void main(String[] args) {
-        SocketClient client = new SocketClient("127.0.0.1", 9999);
+        SocketClient client = new SocketClient();
         client.setSerializer(new KryoSerializer());
         RpcClientProxy proxy = new RpcClientProxy(client);
         HelloService helloService = proxy.getProxy(HelloService.class);

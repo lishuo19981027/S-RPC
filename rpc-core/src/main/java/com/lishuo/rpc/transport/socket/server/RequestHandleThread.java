@@ -1,12 +1,12 @@
-package com.lishuo.rpc.socket.server;
+package com.lishuo.rpc.transport.socket.server;
 
 import com.lishuo.entity.RpcRequest;
 import com.lishuo.entity.RpcResponse;
 import com.lishuo.rpc.registry.ServiceRegistry;
 import com.lishuo.rpc.RequestHandle;
 import com.lishuo.rpc.serializer.CommonSerializer;
-import com.lishuo.rpc.socket.util.ObjectReader;
-import com.lishuo.rpc.socket.util.ObjectWriter;
+import com.lishuo.rpc.transport.socket.util.ObjectReader;
+import com.lishuo.rpc.transport.socket.util.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +36,7 @@ public class RequestHandleThread implements Runnable{
             try (InputStream inputStream = socket.getInputStream();
                  OutputStream outputStream = socket.getOutputStream()) {
                 RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
-                String interfaceName = rpcRequest.getInterfaceName();
-                Object service = serviceRegistry.getService(interfaceName);
-                Object result = requestHandle.handle(rpcRequest, service);
+                Object result = requestHandle.handle(rpcRequest);
                 RpcResponse<Object> response = RpcResponse.success(result,
                         rpcRequest.getRequestId());
                 ObjectWriter.writeObject(outputStream, response, serializer);

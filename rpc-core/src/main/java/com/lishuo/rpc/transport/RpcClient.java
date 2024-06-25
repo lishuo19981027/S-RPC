@@ -1,4 +1,4 @@
-package com.lishuo.rpc;
+package com.lishuo.rpc.transport;
 
 import com.lishuo.entity.RpcRequest;
 import com.lishuo.rpc.serializer.CommonSerializer;

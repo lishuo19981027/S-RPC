@@ -17,6 +17,7 @@ public class ProtobuffSerializer implements CommonSerializer{
     private Map<Class<?>, Schema<?>> schemaCache =
             new ConcurrentHashMap<>();
     @Override
+    @SuppressWarnings("unchecked")
     public byte[] serialize(Object obj) {
         Class clazz = obj.getClass();
         Schema schema = getSchema(clazz);
@@ -29,6 +30,7 @@ public class ProtobuffSerializer implements CommonSerializer{
         return data;
     }
 
+    @SuppressWarnings("unchecked")
     private Schema getSchema(Class clazz) {
         Schema schema = schemaCache.get(clazz);
         if (Objects.isNull(schema)) {

@@ -1,21 +1,17 @@
 package com.lishuo.test;
 
 import com.lishuo.HelloService;
-import com.lishuo.rpc.netty.server.NettyServer;
-import com.lishuo.rpc.registry.DefaultServiceRegistry;
+import com.lishuo.rpc.transport.netty.server.NettyServer;
 import com.lishuo.rpc.registry.ServiceRegistry;
-import com.lishuo.rpc.serializer.KryoSerializer;
 import com.lishuo.rpc.serializer.ProtobuffSerializer;
 
 /*测试用Netty服务提供者（服务端）*/
 public class NettyTestServer {
     public static void main(String[] args) {
         HelloService helloService = new HelloServiceImpl();
-        ServiceRegistry registry = new DefaultServiceRegistry();
-        registry.register(helloService);
-        NettyServer server = new NettyServer();
+        NettyServer server = new NettyServer("127.0.0.1",9999);
         //server.setSerializer(new KryoSerializer());
         server.setSerializer(new ProtobuffSerializer());
-        server.start(9999);
+        server.publishService(helloService, HelloService.class);
     }
 }
