@@ -19,6 +19,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class NettyClient implements RpcClient {
     private static final Logger logger =
             LoggerFactory.getLogger(NettyClient.class);
@@ -49,21 +53,11 @@ public class NettyClient implements RpcClient {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) {
-                ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast(new CommonDecoder())
-                        .addLast(new CommonEncoder(serializer))
-                        .addLast(new NettyClientHandle());
-            }
-        });
-
+        AtomicReference<Object> result = new AtomicReference<>(null);
         try {
-            ChannelFuture future = bootstrap.connect(host, port).sync();
-            logger.info("客户端连接到服务器 {}:{}", host, port);
-            Channel channel = future.channel();
-            if(channel != null) {
+            Channel channel =
+                    ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            if(channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {
                     if(future1.isSuccess()) {
                         logger.info(String.format("客户端发送消息: %s", rpcRequest.toString()));
@@ -76,13 +70,15 @@ public class NettyClient implements RpcClient {
                         AttributeKey.valueOf("rpcResponse"+ rpcRequest.getRequestId());
                 RpcResponse rpcResponse = channel.attr(key).get();
                 RpcMessageChecker.check(rpcRequest, rpcResponse);
-                return rpcResponse.getData();
+                result.set(rpcResponse.getData());
+            }else {
+                System.exit(0);
             }
 
         } catch (InterruptedException e) {
             logger.error("发送消息时有错误发生: ", e);
         }
-        return null;
+        return result.get();
     }
 
     @Override
