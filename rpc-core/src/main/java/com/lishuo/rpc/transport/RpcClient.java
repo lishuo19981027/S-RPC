@@ -6,8 +6,8 @@ import com.lishuo.rpc.serializer.CommonSerializer;
 /*客户端类通用接口*/
 public interface RpcClient {
 
-    Object sendRequest(RpcRequest rpcRequest);
+    int DEFAULT_SERIALIZER = CommonSerializer.KRYO_SERIALIZER;
 
-    void setSerializer(CommonSerializer serializer);
+    Object sendRequest(RpcRequest rpcRequest);
 
 }
