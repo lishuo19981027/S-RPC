@@ -5,6 +5,8 @@ import com.lishuo.entity.RpcResponse;
 import com.lishuo.enumeration.ResponseCode;
 import com.lishuo.enumeration.RpcError;
 import com.lishuo.exception.RpcException;
+import com.lishuo.rpc.loadbalancer.LoadBalancer;
+import com.lishuo.rpc.loadbalancer.RandomLoadBalancer;
 import com.lishuo.rpc.provider.NacosServiceRegistry;
 import com.lishuo.rpc.registry.NacosServiceDiscovery;
 import com.lishuo.rpc.registry.ServiceDiscovery;
@@ -30,8 +32,19 @@ public class SocketClient implements RpcClient {
 
     private final CommonSerializer serializer;
 
+    public SocketClient() {
+        this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
+    }
+    public SocketClient(LoadBalancer loadBalancer) {
+        this(DEFAULT_SERIALIZER, loadBalancer);
+    }
+
     public SocketClient(Integer serializer) {
-        this.serviceDiscovery = new NacosServiceDiscovery();
+        this(serializer, new RandomLoadBalancer());
+    }
+
+    public SocketClient(Integer serializer, LoadBalancer loadBalancer) {
+        this.serviceDiscovery = new NacosServiceDiscovery(loadBalancer);
         this.serializer = CommonSerializer.getByCode(serializer);
     }
 

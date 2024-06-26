@@ -5,6 +5,7 @@ import com.lishuo.entity.RpcRequest;
 import com.lishuo.entity.RpcResponse;
 import com.lishuo.rpc.transport.netty.client.NettyClient;
 import com.lishuo.rpc.transport.socket.client.SocketClient;
+import com.lishuo.util.RpcMessageChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +41,20 @@ public class RpcClientProxy implements InvocationHandler {
 
         RpcRequest rpcRequest = new RpcRequest(UUID.randomUUID().toString(),method.getDeclaringClass().getName(),
                 method.getName(), args, method.getParameterTypes(),false);
-        Object result = null;
+        RpcResponse rpcResponse = null;
         if (rpcClient instanceof NettyClient) {
             CompletableFuture<RpcResponse> completableFuture = (CompletableFuture<RpcResponse>) rpcClient.sendRequest(rpcRequest);
             try {
-                result = completableFuture.get().getData();
+                rpcResponse = completableFuture.get();
             } catch (InterruptedException | ExecutionException e) {
                 logger.error("方法调用请求发送失败", e);
                 return null;
             }
         }
         if (rpcClient instanceof SocketClient) {
-            RpcResponse rpcResponse = (RpcResponse) rpcClient.sendRequest(rpcRequest);
-            result = rpcResponse.getData();
+           rpcResponse = (RpcResponse) rpcClient.sendRequest(rpcRequest);
         }
-        return result;
+        RpcMessageChecker.check(rpcRequest, rpcResponse);
+        return rpcResponse.getData();
     }
 }
